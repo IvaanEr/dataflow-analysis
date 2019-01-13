@@ -45,46 +45,57 @@
 (define availble-expr (chaotic-iteration avail-expr-analysis))
 
 (module+ test
-  (define test-fun
-    (parse-function '{test {}
-                           {var a b x y}
-                           {{:= x {- a b}}
-                            {:= y {* a b}}
-                            {while {> y {- a b}}
-                                   {{:= a {- a 1}}
-                                    {:= x {- a b}}}}
-                            {return 0}}}))
-
-  (define result (availble-expr test-fun))
+  (define test-stmt
+    (parse-stmt '{{:= x {+ a b}}
+                  {:= y {* a b}}
+                  {while {> y {+ a b}}
+                         {{:= a {+ a 1}}
+                          {:= x {+ a b}}}}
+                  }))
+  
+  (define result (availble-expr test-stmt))
   (define result-IN (car result))
-  (define result-OUT (cdr result))
-
+  
   (check-equal? (make-immutable-hash (hash->list result-IN))
                 (hash
-                 (Node (Return 0) 6)
-                 (set (Minus 'a 'b))
-                 (Node (Assign 'a (Minus 'a 1)) 3)
-                 (set (Minus 'a 'b))
-                 (Node (Assign 'x (Minus 'a 'b)) 4)
+                 (Node (Assign 'a (Plus 'a 1)) 3)
+                 (set (Plus 'a 'b))
+                 (Node (Assign 'x (Plus 'a 'b)) 1)
                  (set)
-                 (Node (Greater 'y (Minus 'a 'b)) 5)
-                 (set (Minus 'a 'b))
+                 (Node (Assign 'x (Plus 'a 'b)) 4)
+                 (set)
+                 (Node (Greater 'y (Plus 'a 'b)) 5)
+                 (set (Plus 'a 'b))
                  (Node (Assign 'y (Mult 'a 'b)) 2)
-                 (set (Minus 'a 'b))
-                 (Node (Assign 'x (Minus 'a 'b)) 1)
-                 (set)))
+                 (set (Plus 'a 'b))))
+)
 
-  (check-equal? (make-immutable-hash (hash->list result-OUT))
-                (hash
-                 (Node (Return 0) 6)
-                 (set (Minus 'a 'b))
-                 (Node (Assign 'a (Minus 'a 1)) 3)
-                 (set)
-                 (Node (Assign 'x (Minus 'a 'b)) 4)
-                 (set (Minus 'a 'b))
-                 (Node (Greater 'y (Minus 'a 'b)) 5)
-                 (set (Minus 'a 'b))
-                 (Node (Assign 'y (Mult 'a 'b)) 2)
-                 (set (Minus 'a 'b) (Mult 'a 'b))
-                 (Node (Assign 'x (Minus 'a 'b)) 1)
-                 (set (Minus 'a 'b)))))
+  ; (check-equal? (make-immutable-hash (hash->list result-IN))
+  ;               (hash
+  ;                (Node (Return 0) 6)
+  ;                (set (Minus 'a 'b))
+  ;                (Node (Assign 'a (Minus 'a 1)) 3)
+  ;                (set (Minus 'a 'b))
+  ;                (Node (Assign 'x (Minus 'a 'b)) 4)
+  ;                (set)
+  ;                (Node (Greater 'y (Minus 'a 'b)) 5)
+  ;                (set (Minus 'a 'b))
+  ;                (Node (Assign 'y (Mult 'a 'b)) 2)
+  ;                (set (Minus 'a 'b))
+  ;                (Node (Assign 'x (Minus 'a 'b)) 1)
+  ;                (set)))
+
+  ; (check-equal? (make-immutable-hash (hash->list result-OUT))
+  ;               (hash
+  ;                (Node (Return 0) 6)
+  ;                (set (Minus 'a 'b))
+  ;                (Node (Assign 'a (Minus 'a 1)) 3)
+  ;                (set)
+  ;                (Node (Assign 'x (Minus 'a 'b)) 4)
+  ;                (set (Minus 'a 'b))
+  ;                (Node (Greater 'y (Minus 'a 'b)) 5)
+  ;                (set (Minus 'a 'b))
+  ;                (Node (Assign 'y (Mult 'a 'b)) 2)
+  ;                (set (Minus 'a 'b) (Mult 'a 'b))
+  ;                (Node (Assign 'x (Minus 'a 'b)) 1)
+  ;                (set (Minus 'a 'b)))))

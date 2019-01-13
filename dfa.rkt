@@ -27,7 +27,7 @@
   (define meet (Analysis-meet analysis))
 
   (lambda (fun)
-    (define cfg (fun->cfg fun))
+    (define cfg (stmt->cfg fun))
     (define IN (make-hash))
     (define OUT (make-hash))
     
