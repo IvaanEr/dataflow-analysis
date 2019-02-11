@@ -12,7 +12,6 @@
 
 (require rackunit)
 
-
 (define live-variables-analysis
   (Analysis
    ; direction
@@ -45,40 +44,6 @@
        [else (set)]))
    ; meet
    set-union))
-
-(define live-variables-star
-  (Analysis
-   ; direction
-   'backward
-   ; init
-   (λ (cfg n) (set))
-   ; entry fact
-   (λ (fun cfg entry) (set))
-   ; exit fact
-   (λ (fun cfg exit) (set))
-   ; gen
-   (λ (cfg n)
-     (match n
-       [(Node (Assign id e) _) (get-vars e)]
-       [(Node (Equal l r) _)
-        (set-union (get-vars l) (get-vars r))]
-       [(Node (Greater l r) _)
-        (set-union (get-vars l) (get-vars r))]
-      ; [(Node (App f args) _)
-      ;  (apply set-union (map get-vars args))]
-      ; [(Node (Output e) _)
-      ;  (get-vars e)]
-      ; [(Node (Return e) _)
-      ;  (get-vars e)]
-       [else (set)]))
-   ; kill
-   (λ (cfg n)
-     (match n
-       [(Node (Assign id e) _) (set id)]
-       [else (set)]))
-   ; meet
-   set-union))
-
 
 (define live-variables
   (chaotic-iteration live-variables-analysis))

@@ -203,6 +203,4 @@
     (check-match (get-succs (CFG-entry cfg) cfg)
                  (list (Node (Equal 'x 3) _))))
 
-    
-
   )
