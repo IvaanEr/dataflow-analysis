@@ -40,6 +40,16 @@ Stmt ::= NoOp | Output | Return | While | Assign | If | Stmt*
 (struct If (cnd thn els) #:transparent)
 (struct Seq (stmts) #:transparent)
 
+(define (get-vars-stmt st)
+  (match st
+    [(Skip) (set)]
+    [(While cnd body) (get-vars-stmt body)]
+    [(If cnd thn els) (set-union (get-vars-stmt thn) (get-vars-stmt els))]
+    [(Seq stmts) (foldl set-union (set) (map get-vars-stmt stmts))]
+    [(Assign id e) (set id)]
+    [else (set)]
+  )
+)
 #|
 Program ::= Fun*
 |#
