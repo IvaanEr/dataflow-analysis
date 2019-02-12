@@ -30,12 +30,6 @@
         (set-union (get-vars l) (get-vars r))]
        [(Node (Greater l r) _)
         (set-union (get-vars l) (get-vars r))]
-      ; [(Node (App f args) _)
-      ;  (apply set-union (map get-vars args))]
-      ; [(Node (Output e) _)
-      ;  (get-vars e)]
-      ; [(Node (Return e) _)
-      ;  (get-vars e)]
        [else (set)]))
    ; kill
    (λ (cfg n)
@@ -45,9 +39,42 @@
    ; meet
    set-union))
 
+
+(define (live-variables-analysis-star final-var-set)
+  (Analysis
+   ; direction
+   'backward
+   ; init
+   (λ (cfg n) (set))
+   ; entry fact
+   (λ (fun cfg entry) (set))
+   ; exit fact
+   (λ (fun cfg exit) (set final-var-set))
+   ; gen
+   (λ (cfg n)
+     (match n
+       [(Node (Assign id e) _) (get-vars e)]
+       [(Node (Equal l r) _)
+        (set-union (get-vars l) (get-vars r))]
+       [(Node (Greater l r) _)
+        (set-union (get-vars l) (get-vars r))]
+       [else (set)]))
+   ; kill
+   (λ (cfg n)
+     (match n
+       [(Node (Assign id e) _) (set id)]
+       [else (set)]))
+   ; meet
+   set-union))
+
+
 (define live-variables
   (chaotic-iteration live-variables-analysis))
 
+(define (live-variables-star final-var-set)
+ (chaotic-iteration (live-variables-analysis-star final-var-set))
+)
+  
 (module+ test
   (define test-stmt
     (parse-stmt
@@ -58,8 +85,9 @@
            {:= z y}
            {:= z {* y y}}}
        {:= x z}}))
+          
   
-  (define result (live-variables test-stmt))
+  (define result ((live-variables-star (set 'x 'y 'z)) test-stmt))
   (define result-OUT (cdr result))
   
   (check-equal? (make-immutable-hash (hash->list result-OUT))
@@ -72,4 +100,5 @@
                  (Node (Assign 'x 2) 1) (set)
                  (Node (Assign 'x 'z) 8) (set)
                  (Node (Assign 'z (Mult 'y 'y)) 5) (set 'z)))
+
 )
