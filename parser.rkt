@@ -39,6 +39,13 @@
                             (parse-expr rhs))]
     [else (error 'parse-expr "can not parse expression")]))
 
+(define (deparse-bool e)
+  (match e
+    [(Greater l r) (> l r)]
+    [(Equal l r) (= l r)]
+  )
+)  
+
 ; sexp -> Fun
 (define (parse-function f)
 (match f

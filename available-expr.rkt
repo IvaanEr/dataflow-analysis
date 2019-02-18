@@ -55,6 +55,10 @@
   
   (define result (availble-expr test-stmt))
   (define result-IN (car result))
+
+  (define result-worklist (availble-expr test-stmt))
+  (define result-IN-worklist (car result-worklist))
+
   
   (check-equal? (make-immutable-hash (hash->list result-IN))
                 (hash
@@ -68,8 +72,20 @@
                  (set (Plus 'a 'b))
                  (Node (Assign 'y (Mult 'a 'b)) 2)
                  (set (Plus 'a 'b))))
-)
 
+(check-equal? (make-immutable-hash (hash->list result-IN-worklist))
+                (hash
+                 (Node (Assign 'a (Plus 'a 1)) 3)
+                 (set (Plus 'a 'b))
+                 (Node (Assign 'x (Plus 'a 'b)) 1)
+                 (set)
+                 (Node (Assign 'x (Plus 'a 'b)) 4)
+                 (set)
+                 (Node (Greater 'y (Plus 'a 'b)) 5)
+                 (set (Plus 'a 'b))
+                 (Node (Assign 'y (Mult 'a 'b)) 2)
+                 (set (Plus 'a 'b))))
+)
   ; (check-equal? (make-immutable-hash (hash->list result-IN))
   ;               (hash
   ;                (Node (Return 0) 6)
