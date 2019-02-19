@@ -2,7 +2,6 @@
 
 ;; The framework of dataflow analysis
 ;; Chaotic Iteration Algorithm
-(require dyoo-while-loop)
 ;(require br/cond)
 
 ;(require control)
